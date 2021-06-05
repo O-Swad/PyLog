@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>clarity.logfile.log_file API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>clarity.logfile.log_file</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import os
+import time
+from collections import Counter
+from clarity.logline.log_line import LogLine
+
+
+class LogFile(object):
+    &#34;&#34;&#34;
+    Class for managing log files
+    &#34;&#34;&#34;
+
+    def __init__(self, name):
+        self._name = name
+        &#34;&#34;&#34;Name of the file&#34;&#34;&#34;
+        self._lines = list()
+        &#34;&#34;&#34;Lines composed by timestamp host_from and host_to&#34;&#34;&#34;
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def lines(self):
+        return self._lines
+
+    @lines.setter
+    def lines(self, value):
+        self._lines = value
+
+    def parse(self, buffer_size=512):
+        &#34;&#34;&#34;
+        implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
+        dumped to ram, else a buffer is used
+        &#34;&#34;&#34;
+        # file size
+        file_size = os.stat(self._name).st_size
+        # a chunk = block_number * buffer size
+        block_number = 0
+        last_lines_for_tokenize = None
+        data = []
+
+        try:
+            with open(self._name) as file:
+
+                # buffer size can&#39;t be greater than file size for not dumping all the file in RAM
+                if buffer_size &gt; file_size:
+                    buffer_size = file_size - 1
+
+                # file size greater than 1Mb then use a buffer for reading in chunks
+                if file_size &gt; 1000000:
+                    while True:
+                        data = []
+                        block_number += 1
+
+                        # go directly to the file position determined by buffer_size and block_number
+                        file.seek(file_size - buffer_size * block_number)
+                        # load in RAM all lines from seek position to the end of the file
+                        data.extend(file.readlines())
+
+                        # when no more for reading, exit
+                        if file.tell() == 0:
+                            last_lines_for_tokenize = data
+                            break
+                # tiny file, then dump into ram
+                else:
+                    data.extend(file.readlines())
+                    last_lines_for_tokenize = data
+        except IOError as error:
+            print(error)
+
+        self._to_tokenized_lines(last_lines_for_tokenize)
+
+    def _to_tokenized_lines(self, data):
+        &#34;&#34;&#34;
+        :param data: data list from file for tokenizing
+        :return: a list of LogLines
+        &#34;&#34;&#34;
+        self._lines.clear()
+        if data:
+
+            for line in data:
+                t_stamp = line.split()[0]
+                host_ori = line.split()[1]
+                host_dest = line.split()[2]
+                self._lines.append(LogLine(t_stamp, host_ori, host_dest))
+
+    def _get_last_hour(self) -&gt; list:
+        &#34;&#34;&#34;
+        get the log lines of the last hour
+        :return: A list of tuples with the format (from_host, to_host)
+        &#34;&#34;&#34;
+
+        # current time in milliseconds
+        now_time = int(time.time()*1000)
+
+        # filter the lines from the last hour
+        hour_filter = filter(lambda x: int(x.log_timestamp) &gt;= now_time - 3600000, self._lines)
+
+        # to create list of tuples [(from, to),...]
+        loglines_list = []
+        for line in hour_filter:
+            loglines_list.append((line.host_ori, line.host_dest))
+
+        return loglines_list
+
+    def _get_between(self, init_datetime: int, end_datetime: int) -&gt; list:
+        &#34;&#34;&#34;
+        get the log lines in a period
+        :param init_datetime start time of the period
+        :param end_datetime end time of the period
+        &#34;&#34;&#34;
+
+        period_filter = list(filter(
+                                    lambda x:
+                                    init_datetime &lt;= int(x.log_timestamp) &lt;= end_datetime, self._lines
+                                    )
+                             )
+
+        loglines_list = []
+        for line in period_filter:
+            loglines_list.append((line.host_ori, line.host_dest))
+
+        return loglines_list
+
+    def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str) -&gt; list:
+        &#34;&#34;&#34;
+        get a list of hostnames connected to the given host during the given period
+        :param init_datetime start time of the period
+        :param end_datetime end time of the period
+        :param host_to given host
+        &#34;&#34;&#34;
+        to_filter = list(filter(lambda x: x[1] == host_to, self._get_between(init_datetime, end_datetime)))
+        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
+        return hosts_connected_to
+
+    def get_hosts_connected_to(self, host_to: str) -&gt; list:
+        &#34;&#34;&#34;
+        get a list of hostnames connected to a given host
+        :param host_to: given host
+        :param hosts: list of hosts in the last hour
+        :return: list of hostnames connected to the given host
+        &#34;&#34;&#34;
+        to_filter = list(filter(lambda x: x[1] == host_to, self._get_last_hour()))
+        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
+        return hosts_connected_to
+
+    def get_hosts_connected_from(self, host_from: str) -&gt; list:
+        &#34;&#34;&#34;
+        get a list of hostnames connected from a given host
+        :param host_from: given host
+        :return: list of hostnames connected from the given host
+        &#34;&#34;&#34;
+
+        from_filter = filter(lambda x: x[0] == host_from, self._get_last_hour())
+        hosts_connected_from = (host for host in Counter([x[1] for x in from_filter]).most_common())
+        return hosts_connected_from
+
+    def get_most_connections_host(self) -&gt; str:
+        &#34;&#34;&#34;
+        get the host which opened more connections (from hosts)
+        :param hosts: list of hosts in the last hour
+        :return: list of hostnames connected to the given host
+        &#34;&#34;&#34;
+        return [host for host in Counter([x[0] for x in self._get_last_hour()]).most_common(1)]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="clarity.logfile.log_file.LogFile"><code class="flex name class">
+<span>class <span class="ident">LogFile</span></span>
+<span>(</span><span>name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class for managing log files</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LogFile(object):
+    &#34;&#34;&#34;
+    Class for managing log files
+    &#34;&#34;&#34;
+
+    def __init__(self, name):
+        self._name = name
+        &#34;&#34;&#34;Name of the file&#34;&#34;&#34;
+        self._lines = list()
+        &#34;&#34;&#34;Lines composed by timestamp host_from and host_to&#34;&#34;&#34;
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def lines(self):
+        return self._lines
+
+    @lines.setter
+    def lines(self, value):
+        self._lines = value
+
+    def parse(self, buffer_size=512):
+        &#34;&#34;&#34;
+        implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
+        dumped to ram, else a buffer is used
+        &#34;&#34;&#34;
+        # file size
+        file_size = os.stat(self._name).st_size
+        # a chunk = block_number * buffer size
+        block_number = 0
+        last_lines_for_tokenize = None
+        data = []
+
+        try:
+            with open(self._name) as file:
+
+                # buffer size can&#39;t be greater than file size for not dumping all the file in RAM
+                if buffer_size &gt; file_size:
+                    buffer_size = file_size - 1
+
+                # file size greater than 1Mb then use a buffer for reading in chunks
+                if file_size &gt; 1000000:
+                    while True:
+                        data = []
+                        block_number += 1
+
+                        # go directly to the file position determined by buffer_size and block_number
+                        file.seek(file_size - buffer_size * block_number)
+                        # load in RAM all lines from seek position to the end of the file
+                        data.extend(file.readlines())
+
+                        # when no more for reading, exit
+                        if file.tell() == 0:
+                            last_lines_for_tokenize = data
+                            break
+                # tiny file, then dump into ram
+                else:
+                    data.extend(file.readlines())
+                    last_lines_for_tokenize = data
+        except IOError as error:
+            print(error)
+
+        self._to_tokenized_lines(last_lines_for_tokenize)
+
+    def _to_tokenized_lines(self, data):
+        &#34;&#34;&#34;
+        :param data: data list from file for tokenizing
+        :return: a list of LogLines
+        &#34;&#34;&#34;
+        self._lines.clear()
+        if data:
+
+            for line in data:
+                t_stamp = line.split()[0]
+                host_ori = line.split()[1]
+                host_dest = line.split()[2]
+                self._lines.append(LogLine(t_stamp, host_ori, host_dest))
+
+    def _get_last_hour(self) -&gt; list:
+        &#34;&#34;&#34;
+        get the log lines of the last hour
+        :return: A list of tuples with the format (from_host, to_host)
+        &#34;&#34;&#34;
+
+        # current time in milliseconds
+        now_time = int(time.time()*1000)
+
+        # filter the lines from the last hour
+        hour_filter = filter(lambda x: int(x.log_timestamp) &gt;= now_time - 3600000, self._lines)
+
+        # to create list of tuples [(from, to),...]
+        loglines_list = []
+        for line in hour_filter:
+            loglines_list.append((line.host_ori, line.host_dest))
+
+        return loglines_list
+
+    def _get_between(self, init_datetime: int, end_datetime: int) -&gt; list:
+        &#34;&#34;&#34;
+        get the log lines in a period
+        :param init_datetime start time of the period
+        :param end_datetime end time of the period
+        &#34;&#34;&#34;
+
+        period_filter = list(filter(
+                                    lambda x:
+                                    init_datetime &lt;= int(x.log_timestamp) &lt;= end_datetime, self._lines
+                                    )
+                             )
+
+        loglines_list = []
+        for line in period_filter:
+            loglines_list.append((line.host_ori, line.host_dest))
+
+        return loglines_list
+
+    def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str) -&gt; list:
+        &#34;&#34;&#34;
+        get a list of hostnames connected to the given host during the given period
+        :param init_datetime start time of the period
+        :param end_datetime end time of the period
+        :param host_to given host
+        &#34;&#34;&#34;
+        to_filter = list(filter(lambda x: x[1] == host_to, self._get_between(init_datetime, end_datetime)))
+        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
+        return hosts_connected_to
+
+    def get_hosts_connected_to(self, host_to: str) -&gt; list:
+        &#34;&#34;&#34;
+        get a list of hostnames connected to a given host
+        :param host_to: given host
+        :param hosts: list of hosts in the last hour
+        :return: list of hostnames connected to the given host
+        &#34;&#34;&#34;
+        to_filter = list(filter(lambda x: x[1] == host_to, self._get_last_hour()))
+        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
+        return hosts_connected_to
+
+    def get_hosts_connected_from(self, host_from: str) -&gt; list:
+        &#34;&#34;&#34;
+        get a list of hostnames connected from a given host
+        :param host_from: given host
+        :return: list of hostnames connected from the given host
+        &#34;&#34;&#34;
+
+        from_filter = filter(lambda x: x[0] == host_from, self._get_last_hour())
+        hosts_connected_from = (host for host in Counter([x[1] for x in from_filter]).most_common())
+        return hosts_connected_from
+
+    def get_most_connections_host(self) -&gt; str:
+        &#34;&#34;&#34;
+        get the host which opened more connections (from hosts)
+        :param hosts: list of hosts in the last hour
+        :return: list of hostnames connected to the given host
+        &#34;&#34;&#34;
+        return [host for host in Counter([x[0] for x in self._get_last_hour()]).most_common(1)]</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="clarity.logfile.log_file.LogFile.lines"><code class="name">var <span class="ident">lines</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def lines(self):
+    return self._lines</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self):
+    return self._name</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="clarity.logfile.log_file.LogFile.get_host_connected_to_in_period"><code class="name flex">
+<span>def <span class="ident">get_host_connected_to_in_period</span></span>(<span>self, init_datetime: int, end_datetime: int, host_to: str) ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"><p>get a list of hostnames connected to the given host during the given period
+:param init_datetime start time of the period
+:param end_datetime end time of the period
+:param host_to given host</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str) -&gt; list:
+    &#34;&#34;&#34;
+    get a list of hostnames connected to the given host during the given period
+    :param init_datetime start time of the period
+    :param end_datetime end time of the period
+    :param host_to given host
+    &#34;&#34;&#34;
+    to_filter = list(filter(lambda x: x[1] == host_to, self._get_between(init_datetime, end_datetime)))
+    hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
+    return hosts_connected_to</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.get_hosts_connected_from"><code class="name flex">
+<span>def <span class="ident">get_hosts_connected_from</span></span>(<span>self, host_from: str) ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"><p>get a list of hostnames connected from a given host
+:param host_from: given host
+:return: list of hostnames connected from the given host</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_hosts_connected_from(self, host_from: str) -&gt; list:
+    &#34;&#34;&#34;
+    get a list of hostnames connected from a given host
+    :param host_from: given host
+    :return: list of hostnames connected from the given host
+    &#34;&#34;&#34;
+
+    from_filter = filter(lambda x: x[0] == host_from, self._get_last_hour())
+    hosts_connected_from = (host for host in Counter([x[1] for x in from_filter]).most_common())
+    return hosts_connected_from</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.get_hosts_connected_to"><code class="name flex">
+<span>def <span class="ident">get_hosts_connected_to</span></span>(<span>self, host_to: str) ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"><p>get a list of hostnames connected to a given host
+:param host_to: given host
+:param hosts: list of hosts in the last hour
+:return: list of hostnames connected to the given host</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_hosts_connected_to(self, host_to: str) -&gt; list:
+    &#34;&#34;&#34;
+    get a list of hostnames connected to a given host
+    :param host_to: given host
+    :param hosts: list of hosts in the last hour
+    :return: list of hostnames connected to the given host
+    &#34;&#34;&#34;
+    to_filter = list(filter(lambda x: x[1] == host_to, self._get_last_hour()))
+    hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
+    return hosts_connected_to</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.get_most_connections_host"><code class="name flex">
+<span>def <span class="ident">get_most_connections_host</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>get the host which opened more connections (from hosts)
+:param hosts: list of hosts in the last hour
+:return: list of hostnames connected to the given host</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_most_connections_host(self) -&gt; str:
+    &#34;&#34;&#34;
+    get the host which opened more connections (from hosts)
+    :param hosts: list of hosts in the last hour
+    :return: list of hostnames connected to the given host
+    &#34;&#34;&#34;
+    return [host for host in Counter([x[0] for x in self._get_last_hour()]).most_common(1)]</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.parse"><code class="name flex">
+<span>def <span class="ident">parse</span></span>(<span>self, buffer_size=512)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
+dumped to ram, else a buffer is used</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse(self, buffer_size=512):
+    &#34;&#34;&#34;
+    implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
+    dumped to ram, else a buffer is used
+    &#34;&#34;&#34;
+    # file size
+    file_size = os.stat(self._name).st_size
+    # a chunk = block_number * buffer size
+    block_number = 0
+    last_lines_for_tokenize = None
+    data = []
+
+    try:
+        with open(self._name) as file:
+
+            # buffer size can&#39;t be greater than file size for not dumping all the file in RAM
+            if buffer_size &gt; file_size:
+                buffer_size = file_size - 1
+
+            # file size greater than 1Mb then use a buffer for reading in chunks
+            if file_size &gt; 1000000:
+                while True:
+                    data = []
+                    block_number += 1
+
+                    # go directly to the file position determined by buffer_size and block_number
+                    file.seek(file_size - buffer_size * block_number)
+                    # load in RAM all lines from seek position to the end of the file
+                    data.extend(file.readlines())
+
+                    # when no more for reading, exit
+                    if file.tell() == 0:
+                        last_lines_for_tokenize = data
+                        break
+            # tiny file, then dump into ram
+            else:
+                data.extend(file.readlines())
+                last_lines_for_tokenize = data
+    except IOError as error:
+        print(error)
+
+    self._to_tokenized_lines(last_lines_for_tokenize)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="clarity.logfile" href="index.html">clarity.logfile</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="clarity.logfile.log_file.LogFile" href="#clarity.logfile.log_file.LogFile">LogFile</a></code></h4>
+<ul class="">
+<li><code><a title="clarity.logfile.log_file.LogFile.get_host_connected_to_in_period" href="#clarity.logfile.log_file.LogFile.get_host_connected_to_in_period">get_host_connected_to_in_period</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.get_hosts_connected_from" href="#clarity.logfile.log_file.LogFile.get_hosts_connected_from">get_hosts_connected_from</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.get_hosts_connected_to" href="#clarity.logfile.log_file.LogFile.get_hosts_connected_to">get_hosts_connected_to</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.get_most_connections_host" href="#clarity.logfile.log_file.LogFile.get_most_connections_host">get_most_connections_host</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.lines" href="#clarity.logfile.log_file.LogFile.lines">lines</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.name" href="#clarity.logfile.log_file.LogFile.name">name</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.parse" href="#clarity.logfile.log_file.LogFile.parse">parse</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
