@@ -4,15 +4,6 @@ A Python log parser that scales.
 ## Source code documentation
 [pdoc](https://pdoc3.github.io/pdoc/) style documentation can be viewed on [source code documentation](https://o-swad.github.io/clarity-challenge/docs/clarity/).
 
-## Install
-The project can be installed as python package or extracting the source code files from a tar file
-
-### Installing from PyPi
-
-
-### Extracting source code
-
-
 ## Assumptions:
     1. timestamp is always in milliseconds
     2. "last hour" is the last hour of the current system time not the last of the timestamps of the file
@@ -20,10 +11,17 @@ The project can be installed as python package or extracting the source code fil
     4. The size of log lines is variable
     5. Performance is a high priority
 
+## Install
+```commandline
+tar -xzvf clarity_challenge_v1.0.tar.gz
+cd clarity_challenge_v1.0/
+python3 -m clarity.app.app -h
+
+```
 
 ## Run
 
-1. **Asking for help**: `python3 app.py -h`
+1. **Asking for help**: `python3 -m clarity.app.app -h`
 ```
 usage: app.py [-h] [--init_datetime INIT_DATETIME] [--end_datetime END_DATETIME] [--host HOST] [--connected_from CONNECTED_FROM]
               [--connected_to CONNECTED_TO] [--watch WATCH] [--buffer_size BUFFER_SIZE]
@@ -53,7 +51,7 @@ optional arguments:
 2. **Parse the data with a time_init, time_end**:
 To get hosts connected to "Matina" between "1565647204351" and "1565733598341" timestamps
 ```commandline
-python3 app.py --init_datetime 1565647204351 --end_datetime 1565733598341 --host Matina ../tests/input-file-10000.txt
+python3 -m clarity.app.app --init_datetime 1565647204351 --end_datetime 1565733598341 --host Matina ../tests/input-file-10000.txt
 ```
 
 ```commandline
@@ -75,7 +73,7 @@ It is shown the hosts and the number of times connected to Matina.
 To get hosts that were connected from "manaslu" and connected to "everest", and read "test-log-file.txt"
    every 10 seconds ("watch 10")
 ```commandline
-python3 app.py --connected_from manaslu --connected_to everest --watch 10 test-log-file.txt
+python3 -m clarity.app.app --connected_from manaslu --connected_to everest --watch 10 test-log-file.txt
 ```
 ```commandline
 TIMESTAMP one hour ago 1622971646787
