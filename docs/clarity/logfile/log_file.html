@@ -26,9 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import os
-import time
-from collections import Counter
+<pre><code class="python">import time
+from collections import Counter, defaultdict
 from clarity.logline.log_line import LogLine
 
 
@@ -38,10 +37,18 @@ class LogFile(object):
     &#34;&#34;&#34;
 
     def __init__(self, name):
+        # Name of the file
         self._name = name
-        &#34;&#34;&#34;Name of the file&#34;&#34;&#34;
+        # Lines composed by timestamp host_from and host_to
         self._lines = list()
-        &#34;&#34;&#34;Lines composed by timestamp host_from and host_to&#34;&#34;&#34;
+        # To compute hosts &#34;connected from&#34; in an efficient way
+        self._hosts_from = Counter()
+        # To access host &#34;connected from&#34; in an efficient way
+        self._hosts_from_table = defaultdict(list)
+        # To access host &#34;connected to&#34; in an efficient way
+        self._hosts_to_table = defaultdict(list)
+        # To compute the host that generates most connections
+        self._hosts_most_connections = Counter()
 
     @property
     def name(self):
@@ -59,100 +66,89 @@ class LogFile(object):
     def lines(self, value):
         self._lines = value
 
-    def parse(self, buffer_size=512):
-        &#34;&#34;&#34;
-        implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
-        dumped to ram, else a buffer is used
-        &#34;&#34;&#34;
-        # file size
-        file_size = os.stat(self._name).st_size
-        # a chunk = block_number * buffer size
-        block_number = 0
-        last_lines_for_tokenize = None
-        data = []
+    @property
+    def host_from(self):
+        return self._hosts_from
 
+    @host_from.setter
+    def host_from(self, value):
+        self._hosts_from = value
+
+    @property
+    def host_from_table(self):
+        return self._hosts_from_table
+
+    @host_from_table.setter
+    def host_from_table(self, value):
+        self._hosts_from_table = value
+
+    @property
+    def host_to_table(self):
+        return self._hosts_to_table
+
+    @host_to_table.setter
+    def host_to_table(self, value):
+        self._hosts_to_table = value
+
+    @property
+    def host_most_connections(self):
+        return self._hosts_most_connections
+
+    @host_most_connections.setter
+    def host_most_connections(self, value):
+        self._hosts_most_connections = value
+
+    def _parse_between(self, init_datetime, end_datetime, host_to):
+        &#34;&#34;&#34;
+        Prepare internal data structures to get hosts connected to &#34;host_to&#34;.
+        Implements a reading algorithm based on iterators.
+        (See https://docs.python.org/3/tutorial/inputoutput.html#methods-of-file-objects)
+        @param init_datetime Beginning of the period in milliseconds
+        @param end_datetime End of the period in milliseconds
+        @param host_to Host for filtering connections to
+        &#34;&#34;&#34;
         try:
+
+            # Reading the file with an iterator to not load all data in RAM
             with open(self._name) as file:
+                for line in file:
+                    tokenized_line = line.split()
+                    log_line = LogLine(tokenized_line[0], tokenized_line[1], tokenized_line[2])
+                    between_timestamps = init_datetime &lt;= int(log_line.log_timestamp) &lt;= end_datetime
+                    is_host_to = log_line.host_dest == host_to
+                    if between_timestamps and is_host_to:
+                        self._hosts_from.update([log_line.host_ori])
 
-                # buffer size can&#39;t be greater than file size for not dumping all the file in RAM
-                if buffer_size &gt; file_size:
-                    buffer_size = file_size - 1
-
-                # file size greater than 1Mb then use a buffer for reading in chunks
-                if file_size &gt; 1000000:
-                    while True:
-                        data = []
-                        block_number += 1
-
-                        # go directly to the file position determined by buffer_size and block_number
-                        file.seek(file_size - buffer_size * block_number)
-                        # load in RAM all lines from seek position to the end of the file
-                        data.extend(file.readlines())
-
-                        # when no more for reading, exit
-                        if file.tell() == 0:
-                            last_lines_for_tokenize = data
-                            break
-                # tiny file, then dump into ram
-                else:
-                    data.extend(file.readlines())
-                    last_lines_for_tokenize = data
         except IOError as error:
             print(error)
 
-        self._to_tokenized_lines(last_lines_for_tokenize)
-
-    def _to_tokenized_lines(self, data):
+    def _parse_last_hour(self):
         &#34;&#34;&#34;
-        :param data: data list from file for tokenizing
-        :return: a list of LogLines
+        Prepare internal data structures to get hosts connected to, connected from and with most connections in
+        the last hour.
         &#34;&#34;&#34;
-        self._lines.clear()
-        if data:
-
-            for line in data:
-                t_stamp = line.split()[0]
-                host_ori = line.split()[1]
-                host_dest = line.split()[2]
-                self._lines.append(LogLine(t_stamp, host_ori, host_dest))
-
-    def _get_last_hour(self) -&gt; list:
-        &#34;&#34;&#34;
-        get the log lines of the last hour
-        :return: A list of tuples with the format (from_host, to_host)
-        &#34;&#34;&#34;
-
         # current time in milliseconds
-        now_time = int(time.time()*1000)
+        now_time = int(time.time() * 1000)
+        one_hour_before = now_time - 3600000
 
-        # filter the lines from the last hour
-        hour_filter = filter(lambda x: int(x.log_timestamp) &gt;= now_time - 3600000, self._lines)
+        # To show information about the start timestamp of reference
+        print(f&#34;TIMESTAMP one hour ago {one_hour_before}&#34;)
 
-        # to create list of tuples [(from, to),...]
-        loglines_list = []
-        for line in hour_filter:
-            loglines_list.append((line.host_ori, line.host_dest))
+        try:
 
-        return loglines_list
+            # Reading the file with an iterator, line by line, to not load all data in RAM
+            with open(self._name) as file:
+                for line in file:
+                    tokenized_line = line.split()
+                    log_line = LogLine(tokenized_line[0], tokenized_line[1], tokenized_line[2])
+                    last_hour_timestamps = int(log_line.log_timestamp) &gt;= one_hour_before  # miliseconds
+                    if last_hour_timestamps:
+                        self._hosts_from_table[log_line.host_ori].append(log_line.host_dest)
+                        self._hosts_to_table[log_line.host_dest].append(log_line.host_ori)
+                        self._hosts_most_connections.update([log_line.host_ori])
 
-    def _get_between(self, init_datetime: int, end_datetime: int) -&gt; list:
-        &#34;&#34;&#34;
-        get the log lines in a period
-        :param init_datetime start time of the period
-        :param end_datetime end time of the period
-        &#34;&#34;&#34;
-
-        period_filter = list(filter(
-                                    lambda x:
-                                    init_datetime &lt;= int(x.log_timestamp) &lt;= end_datetime, self._lines
-                                    )
-                             )
-
-        loglines_list = []
-        for line in period_filter:
-            loglines_list.append((line.host_ori, line.host_dest))
-
-        return loglines_list
+        except IOError as error:
+            print(error)
 
     def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str) -&gt; list:
         &#34;&#34;&#34;
@@ -161,9 +157,8 @@ class LogFile(object):
         :param end_datetime end time of the period
         :param host_to given host
         &#34;&#34;&#34;
-        to_filter = list(filter(lambda x: x[1] == host_to, self._get_between(init_datetime, end_datetime)))
-        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
-        return hosts_connected_to
+        self._parse_between(init_datetime, end_datetime, host_to)
+        return self._hosts_from.most_common()
 
     def get_hosts_connected_to(self, host_to: str) -&gt; list:
         &#34;&#34;&#34;
@@ -172,9 +167,10 @@ class LogFile(object):
         :param hosts: list of hosts in the last hour
         :return: list of hostnames connected to the given host
         &#34;&#34;&#34;
-        to_filter = list(filter(lambda x: x[1] == host_to, self._get_last_hour()))
-        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
-        return hosts_connected_to
+        if len(self._hosts_to_table) == 0:
+            self._parse_last_hour()
+
+        return set(self._hosts_to_table[host_to])
 
     def get_hosts_connected_from(self, host_from: str) -&gt; list:
         &#34;&#34;&#34;
@@ -182,18 +178,18 @@ class LogFile(object):
         :param host_from: given host
         :return: list of hostnames connected from the given host
         &#34;&#34;&#34;
+        if len(self._hosts_from_table) == 0:
+            self._parse_last_hour()
 
-        from_filter = filter(lambda x: x[0] == host_from, self._get_last_hour())
-        hosts_connected_from = (host for host in Counter([x[1] for x in from_filter]).most_common())
-        return hosts_connected_from
+        return set(self._hosts_from_table[host_from])
 
-    def get_most_connections_host(self) -&gt; str:
+    def get_most_connections_host(self) -&gt; list:
         &#34;&#34;&#34;
         get the host which opened more connections (from hosts)
         :param hosts: list of hosts in the last hour
         :return: list of hostnames connected to the given host
         &#34;&#34;&#34;
-        return [host for host in Counter([x[0] for x in self._get_last_hour()]).most_common(1)]</code></pre>
+        return self._hosts_most_connections.most_common(1)</code></pre>
 </details>
 </section>
 <section>
@@ -221,10 +217,18 @@ class LogFile(object):
     &#34;&#34;&#34;
 
     def __init__(self, name):
+        # Name of the file
         self._name = name
-        &#34;&#34;&#34;Name of the file&#34;&#34;&#34;
+        # Lines composed by timestamp host_from and host_to
         self._lines = list()
-        &#34;&#34;&#34;Lines composed by timestamp host_from and host_to&#34;&#34;&#34;
+        # To compute hosts &#34;connected from&#34; in an efficient way
+        self._hosts_from = Counter()
+        # To access host &#34;connected from&#34; in an efficient way
+        self._hosts_from_table = defaultdict(list)
+        # To access host &#34;connected to&#34; in an efficient way
+        self._hosts_to_table = defaultdict(list)
+        # To compute the host that generates most connections
+        self._hosts_most_connections = Counter()
 
     @property
     def name(self):
@@ -242,100 +246,89 @@ class LogFile(object):
     def lines(self, value):
         self._lines = value
 
-    def parse(self, buffer_size=512):
-        &#34;&#34;&#34;
-        implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
-        dumped to ram, else a buffer is used
-        &#34;&#34;&#34;
-        # file size
-        file_size = os.stat(self._name).st_size
-        # a chunk = block_number * buffer size
-        block_number = 0
-        last_lines_for_tokenize = None
-        data = []
+    @property
+    def host_from(self):
+        return self._hosts_from
 
+    @host_from.setter
+    def host_from(self, value):
+        self._hosts_from = value
+
+    @property
+    def host_from_table(self):
+        return self._hosts_from_table
+
+    @host_from_table.setter
+    def host_from_table(self, value):
+        self._hosts_from_table = value
+
+    @property
+    def host_to_table(self):
+        return self._hosts_to_table
+
+    @host_to_table.setter
+    def host_to_table(self, value):
+        self._hosts_to_table = value
+
+    @property
+    def host_most_connections(self):
+        return self._hosts_most_connections
+
+    @host_most_connections.setter
+    def host_most_connections(self, value):
+        self._hosts_most_connections = value
+
+    def _parse_between(self, init_datetime, end_datetime, host_to):
+        &#34;&#34;&#34;
+        Prepare internal data structures to get hosts connected to &#34;host_to&#34;.
+        Implements a reading algorithm based on iterators.
+        (See https://docs.python.org/3/tutorial/inputoutput.html#methods-of-file-objects)
+        @param init_datetime Beginning of the period in milliseconds
+        @param end_datetime End of the period in milliseconds
+        @param host_to Host for filtering connections to
+        &#34;&#34;&#34;
         try:
+
+            # Reading the file with an iterator to not load all data in RAM
             with open(self._name) as file:
+                for line in file:
+                    tokenized_line = line.split()
+                    log_line = LogLine(tokenized_line[0], tokenized_line[1], tokenized_line[2])
+                    between_timestamps = init_datetime &lt;= int(log_line.log_timestamp) &lt;= end_datetime
+                    is_host_to = log_line.host_dest == host_to
+                    if between_timestamps and is_host_to:
+                        self._hosts_from.update([log_line.host_ori])
 
-                # buffer size can&#39;t be greater than file size for not dumping all the file in RAM
-                if buffer_size &gt; file_size:
-                    buffer_size = file_size - 1
-
-                # file size greater than 1Mb then use a buffer for reading in chunks
-                if file_size &gt; 1000000:
-                    while True:
-                        data = []
-                        block_number += 1
-
-                        # go directly to the file position determined by buffer_size and block_number
-                        file.seek(file_size - buffer_size * block_number)
-                        # load in RAM all lines from seek position to the end of the file
-                        data.extend(file.readlines())
-
-                        # when no more for reading, exit
-                        if file.tell() == 0:
-                            last_lines_for_tokenize = data
-                            break
-                # tiny file, then dump into ram
-                else:
-                    data.extend(file.readlines())
-                    last_lines_for_tokenize = data
         except IOError as error:
             print(error)
 
-        self._to_tokenized_lines(last_lines_for_tokenize)
-
-    def _to_tokenized_lines(self, data):
+    def _parse_last_hour(self):
         &#34;&#34;&#34;
-        :param data: data list from file for tokenizing
-        :return: a list of LogLines
+        Prepare internal data structures to get hosts connected to, connected from and with most connections in
+        the last hour.
         &#34;&#34;&#34;
-        self._lines.clear()
-        if data:
-
-            for line in data:
-                t_stamp = line.split()[0]
-                host_ori = line.split()[1]
-                host_dest = line.split()[2]
-                self._lines.append(LogLine(t_stamp, host_ori, host_dest))
-
-    def _get_last_hour(self) -&gt; list:
-        &#34;&#34;&#34;
-        get the log lines of the last hour
-        :return: A list of tuples with the format (from_host, to_host)
-        &#34;&#34;&#34;
-
         # current time in milliseconds
-        now_time = int(time.time()*1000)
+        now_time = int(time.time() * 1000)
+        one_hour_before = now_time - 3600000
 
-        # filter the lines from the last hour
-        hour_filter = filter(lambda x: int(x.log_timestamp) &gt;= now_time - 3600000, self._lines)
+        # To show information about the start timestamp of reference
+        print(f&#34;TIMESTAMP one hour ago {one_hour_before}&#34;)
 
-        # to create list of tuples [(from, to),...]
-        loglines_list = []
-        for line in hour_filter:
-            loglines_list.append((line.host_ori, line.host_dest))
+        try:
 
-        return loglines_list
+            # Reading the file with an iterator, line by line, to not load all data in RAM
+            with open(self._name) as file:
+                for line in file:
+                    tokenized_line = line.split()
+                    log_line = LogLine(tokenized_line[0], tokenized_line[1], tokenized_line[2])
+                    last_hour_timestamps = int(log_line.log_timestamp) &gt;= one_hour_before  # miliseconds
+                    if last_hour_timestamps:
+                        self._hosts_from_table[log_line.host_ori].append(log_line.host_dest)
+                        self._hosts_to_table[log_line.host_dest].append(log_line.host_ori)
+                        self._hosts_most_connections.update([log_line.host_ori])
 
-    def _get_between(self, init_datetime: int, end_datetime: int) -&gt; list:
-        &#34;&#34;&#34;
-        get the log lines in a period
-        :param init_datetime start time of the period
-        :param end_datetime end time of the period
-        &#34;&#34;&#34;
-
-        period_filter = list(filter(
-                                    lambda x:
-                                    init_datetime &lt;= int(x.log_timestamp) &lt;= end_datetime, self._lines
-                                    )
-                             )
-
-        loglines_list = []
-        for line in period_filter:
-            loglines_list.append((line.host_ori, line.host_dest))
-
-        return loglines_list
+        except IOError as error:
+            print(error)
 
     def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str) -&gt; list:
         &#34;&#34;&#34;
@@ -344,9 +337,8 @@ class LogFile(object):
         :param end_datetime end time of the period
         :param host_to given host
         &#34;&#34;&#34;
-        to_filter = list(filter(lambda x: x[1] == host_to, self._get_between(init_datetime, end_datetime)))
-        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
-        return hosts_connected_to
+        self._parse_between(init_datetime, end_datetime, host_to)
+        return self._hosts_from.most_common()
 
     def get_hosts_connected_to(self, host_to: str) -&gt; list:
         &#34;&#34;&#34;
@@ -355,9 +347,10 @@ class LogFile(object):
         :param hosts: list of hosts in the last hour
         :return: list of hostnames connected to the given host
         &#34;&#34;&#34;
-        to_filter = list(filter(lambda x: x[1] == host_to, self._get_last_hour()))
-        hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
-        return hosts_connected_to
+        if len(self._hosts_to_table) == 0:
+            self._parse_last_hour()
+
+        return set(self._hosts_to_table[host_to])
 
     def get_hosts_connected_from(self, host_from: str) -&gt; list:
         &#34;&#34;&#34;
@@ -365,21 +358,69 @@ class LogFile(object):
         :param host_from: given host
         :return: list of hostnames connected from the given host
         &#34;&#34;&#34;
+        if len(self._hosts_from_table) == 0:
+            self._parse_last_hour()
 
-        from_filter = filter(lambda x: x[0] == host_from, self._get_last_hour())
-        hosts_connected_from = (host for host in Counter([x[1] for x in from_filter]).most_common())
-        return hosts_connected_from
+        return set(self._hosts_from_table[host_from])
 
-    def get_most_connections_host(self) -&gt; str:
+    def get_most_connections_host(self) -&gt; list:
         &#34;&#34;&#34;
         get the host which opened more connections (from hosts)
         :param hosts: list of hosts in the last hour
         :return: list of hostnames connected to the given host
         &#34;&#34;&#34;
-        return [host for host in Counter([x[0] for x in self._get_last_hour()]).most_common(1)]</code></pre>
+        return self._hosts_most_connections.most_common(1)</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
+<dt id="clarity.logfile.log_file.LogFile.host_from"><code class="name">var <span class="ident">host_from</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def host_from(self):
+    return self._hosts_from</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.host_from_table"><code class="name">var <span class="ident">host_from_table</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def host_from_table(self):
+    return self._hosts_from_table</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.host_most_connections"><code class="name">var <span class="ident">host_most_connections</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def host_most_connections(self):
+    return self._hosts_most_connections</code></pre>
+</details>
+</dd>
+<dt id="clarity.logfile.log_file.LogFile.host_to_table"><code class="name">var <span class="ident">host_to_table</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def host_to_table(self):
+    return self._hosts_to_table</code></pre>
+</details>
+</dd>
 <dt id="clarity.logfile.log_file.LogFile.lines"><code class="name">var <span class="ident">lines</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -426,9 +467,8 @@ def name(self):
     :param end_datetime end time of the period
     :param host_to given host
     &#34;&#34;&#34;
-    to_filter = list(filter(lambda x: x[1] == host_to, self._get_between(init_datetime, end_datetime)))
-    hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
-    return hosts_connected_to</code></pre>
+    self._parse_between(init_datetime, end_datetime, host_to)
+    return self._hosts_from.most_common()</code></pre>
 </details>
 </dd>
 <dt id="clarity.logfile.log_file.LogFile.get_hosts_connected_from"><code class="name flex">
@@ -448,10 +488,10 @@ def name(self):
     :param host_from: given host
     :return: list of hostnames connected from the given host
     &#34;&#34;&#34;
+    if len(self._hosts_from_table) == 0:
+        self._parse_last_hour()
 
-    from_filter = filter(lambda x: x[0] == host_from, self._get_last_hour())
-    hosts_connected_from = (host for host in Counter([x[1] for x in from_filter]).most_common())
-    return hosts_connected_from</code></pre>
+    return set(self._hosts_from_table[host_from])</code></pre>
 </details>
 </dd>
 <dt id="clarity.logfile.log_file.LogFile.get_hosts_connected_to"><code class="name flex">
@@ -473,13 +513,14 @@ def name(self):
     :param hosts: list of hosts in the last hour
     :return: list of hostnames connected to the given host
     &#34;&#34;&#34;
-    to_filter = list(filter(lambda x: x[1] == host_to, self._get_last_hour()))
-    hosts_connected_to = (host for host in Counter([x[0] for x in to_filter]).most_common())
-    return hosts_connected_to</code></pre>
+    if len(self._hosts_to_table) == 0:
+        self._parse_last_hour()
+
+    return set(self._hosts_to_table[host_to])</code></pre>
 </details>
 </dd>
 <dt id="clarity.logfile.log_file.LogFile.get_most_connections_host"><code class="name flex">
-<span>def <span class="ident">get_most_connections_host</span></span>(<span>self) ‑> str</span>
+<span>def <span class="ident">get_most_connections_host</span></span>(<span>self) ‑> list</span>
 </code></dt>
 <dd>
 <div class="desc"><p>get the host which opened more connections (from hosts)
@@ -489,67 +530,13 @@ def name(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_most_connections_host(self) -&gt; str:
+<pre><code class="python">def get_most_connections_host(self) -&gt; list:
     &#34;&#34;&#34;
     get the host which opened more connections (from hosts)
     :param hosts: list of hosts in the last hour
     :return: list of hostnames connected to the given host
     &#34;&#34;&#34;
-    return [host for host in Counter([x[0] for x in self._get_last_hour()]).most_common(1)]</code></pre>
-</details>
-</dd>
-<dt id="clarity.logfile.log_file.LogFile.parse"><code class="name flex">
-<span>def <span class="ident">parse</span></span>(<span>self, buffer_size=512)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
-dumped to ram, else a buffer is used</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def parse(self, buffer_size=512):
-    &#34;&#34;&#34;
-    implements a reading algorithm based on chunks from the end of file. if the file size is less than 1Mb it is
-    dumped to ram, else a buffer is used
-    &#34;&#34;&#34;
-    # file size
-    file_size = os.stat(self._name).st_size
-    # a chunk = block_number * buffer size
-    block_number = 0
-    last_lines_for_tokenize = None
-    data = []
-
-    try:
-        with open(self._name) as file:
-
-            # buffer size can&#39;t be greater than file size for not dumping all the file in RAM
-            if buffer_size &gt; file_size:
-                buffer_size = file_size - 1
-
-            # file size greater than 1Mb then use a buffer for reading in chunks
-            if file_size &gt; 1000000:
-                while True:
-                    data = []
-                    block_number += 1
-
-                    # go directly to the file position determined by buffer_size and block_number
-                    file.seek(file_size - buffer_size * block_number)
-                    # load in RAM all lines from seek position to the end of the file
-                    data.extend(file.readlines())
-
-                    # when no more for reading, exit
-                    if file.tell() == 0:
-                        last_lines_for_tokenize = data
-                        break
-            # tiny file, then dump into ram
-            else:
-                data.extend(file.readlines())
-                last_lines_for_tokenize = data
-    except IOError as error:
-        print(error)
-
-    self._to_tokenized_lines(last_lines_for_tokenize)</code></pre>
+    return self._hosts_most_connections.most_common(1)</code></pre>
 </details>
 </dd>
 </dl>
@@ -577,9 +564,12 @@ dumped to ram, else a buffer is used</p></div>
 <li><code><a title="clarity.logfile.log_file.LogFile.get_hosts_connected_from" href="#clarity.logfile.log_file.LogFile.get_hosts_connected_from">get_hosts_connected_from</a></code></li>
 <li><code><a title="clarity.logfile.log_file.LogFile.get_hosts_connected_to" href="#clarity.logfile.log_file.LogFile.get_hosts_connected_to">get_hosts_connected_to</a></code></li>
 <li><code><a title="clarity.logfile.log_file.LogFile.get_most_connections_host" href="#clarity.logfile.log_file.LogFile.get_most_connections_host">get_most_connections_host</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.host_from" href="#clarity.logfile.log_file.LogFile.host_from">host_from</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.host_from_table" href="#clarity.logfile.log_file.LogFile.host_from_table">host_from_table</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.host_most_connections" href="#clarity.logfile.log_file.LogFile.host_most_connections">host_most_connections</a></code></li>
+<li><code><a title="clarity.logfile.log_file.LogFile.host_to_table" href="#clarity.logfile.log_file.LogFile.host_to_table">host_to_table</a></code></li>
 <li><code><a title="clarity.logfile.log_file.LogFile.lines" href="#clarity.logfile.log_file.LogFile.lines">lines</a></code></li>
 <li><code><a title="clarity.logfile.log_file.LogFile.name" href="#clarity.logfile.log_file.LogFile.name">name</a></code></li>
-<li><code><a title="clarity.logfile.log_file.LogFile.parse" href="#clarity.logfile.log_file.LogFile.parse">parse</a></code></li>
 </ul>
 </li>
 </ul>

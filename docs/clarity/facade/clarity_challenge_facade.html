@@ -31,6 +31,9 @@ from clarity.logfile.log_file import LogFile
 
 
 class ClarityChallengeFacade(object):
+    &#34;&#34;&#34;
+    Facade for decoupling &#34;main&#34; program from LogFile logic
+    &#34;&#34;&#34;
 
     def __init__(self, file_name):
         self._file_name = file_name
@@ -38,18 +41,19 @@ class ClarityChallengeFacade(object):
 
     def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str):
         &#34;&#34;&#34;
-        get a list of hostnames connected to the given host during the given period
+        Get a list of hostnames connected to the given host during the given period
         :param init_datetime start time of the period
         :param end_datetime end time of the period
         :param host_to given host
         &#34;&#34;&#34;
+        hosts = []
         hosts = self._log_file.get_host_connected_to_in_period(int(init_datetime), int(end_datetime), host_to)
         self._print_hosts(hosts, f&#34;HOSTS CONNECTED to {host_to} in period {init_datetime} - {end_datetime}&#34;,
                           f&#34;There is no hosts connected to {host_to} in period {init_datetime} - {end_datetime}&#34;)
 
     def get_hosts_connected_to(self, host_to: str):
         &#34;&#34;&#34;
-        run &#39;process&#39; for getting a list of hosts connected to a given host
+        Run &#39;process&#39; for getting a list of hosts connected to a given host
         :param host_to given host
         &#34;&#34;&#34;
         hosts = self._log_file.get_hosts_connected_to(host_to)
@@ -57,24 +61,18 @@ class ClarityChallengeFacade(object):
 
     def get_hosts_connected_from(self, host_from: str):
         &#34;&#34;&#34;
-        run &#39;process&#39; for getting a list of hosts connected from a given host
+        Run &#39;process&#39; for getting a list of hosts connected from a given host
         :param host_from given host
         &#34;&#34;&#34;
         hosts = self._log_file.get_hosts_connected_from(host_from)
-        self._print_hosts(hosts, f&#34;HOSTS CONNECTED from {host_from}&#34;,  f&#34;There is no hosts connected to {host_from}&#34;)
+        self._print_hosts(hosts, f&#34;HOSTS CONNECTED from {host_from}&#34;,  f&#34;There is no hosts connected from {host_from}&#34;)
     
     def get_most_connections_host(self):
         &#34;&#34;&#34;
-        run &#39;process&#39; for host which generated most connections
+        Run &#39;process&#39; for host which generated most connections
         &#34;&#34;&#34;
         hosts = self._log_file.get_most_connections_host()
-        self._print_hosts(hosts, f&#34;HOST WITH MOST CONNECTIONS{hosts}&#34;, f&#34;There is no connections&#34;)
-
-    def parse(self, buffer_size=512):
-        &#34;&#34;&#34;
-        run parse of log file
-        &#34;&#34;&#34;
-        self._log_file.parse()
+        self._print_hosts(hosts, f&#34;HOST WITH MOST CONNECTIONS&#34;, f&#34;There is no connections&#34;)
 
     @staticmethod
     def _print_hosts(hosts, hosts_message, no_hosts_message):
@@ -100,12 +98,15 @@ class ClarityChallengeFacade(object):
 <span>(</span><span>file_name)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Facade for decoupling "main" program from LogFile logic</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ClarityChallengeFacade(object):
+    &#34;&#34;&#34;
+    Facade for decoupling &#34;main&#34; program from LogFile logic
+    &#34;&#34;&#34;
 
     def __init__(self, file_name):
         self._file_name = file_name
@@ -113,18 +114,19 @@ class ClarityChallengeFacade(object):
 
     def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str):
         &#34;&#34;&#34;
-        get a list of hostnames connected to the given host during the given period
+        Get a list of hostnames connected to the given host during the given period
         :param init_datetime start time of the period
         :param end_datetime end time of the period
         :param host_to given host
         &#34;&#34;&#34;
+        hosts = []
         hosts = self._log_file.get_host_connected_to_in_period(int(init_datetime), int(end_datetime), host_to)
         self._print_hosts(hosts, f&#34;HOSTS CONNECTED to {host_to} in period {init_datetime} - {end_datetime}&#34;,
                           f&#34;There is no hosts connected to {host_to} in period {init_datetime} - {end_datetime}&#34;)
 
     def get_hosts_connected_to(self, host_to: str):
         &#34;&#34;&#34;
-        run &#39;process&#39; for getting a list of hosts connected to a given host
+        Run &#39;process&#39; for getting a list of hosts connected to a given host
         :param host_to given host
         &#34;&#34;&#34;
         hosts = self._log_file.get_hosts_connected_to(host_to)
@@ -132,24 +134,18 @@ class ClarityChallengeFacade(object):
 
     def get_hosts_connected_from(self, host_from: str):
         &#34;&#34;&#34;
-        run &#39;process&#39; for getting a list of hosts connected from a given host
+        Run &#39;process&#39; for getting a list of hosts connected from a given host
         :param host_from given host
         &#34;&#34;&#34;
         hosts = self._log_file.get_hosts_connected_from(host_from)
-        self._print_hosts(hosts, f&#34;HOSTS CONNECTED from {host_from}&#34;,  f&#34;There is no hosts connected to {host_from}&#34;)
+        self._print_hosts(hosts, f&#34;HOSTS CONNECTED from {host_from}&#34;,  f&#34;There is no hosts connected from {host_from}&#34;)
     
     def get_most_connections_host(self):
         &#34;&#34;&#34;
-        run &#39;process&#39; for host which generated most connections
+        Run &#39;process&#39; for host which generated most connections
         &#34;&#34;&#34;
         hosts = self._log_file.get_most_connections_host()
-        self._print_hosts(hosts, f&#34;HOST WITH MOST CONNECTIONS{hosts}&#34;, f&#34;There is no connections&#34;)
-
-    def parse(self, buffer_size=512):
-        &#34;&#34;&#34;
-        run parse of log file
-        &#34;&#34;&#34;
-        self._log_file.parse()
+        self._print_hosts(hosts, f&#34;HOST WITH MOST CONNECTIONS&#34;, f&#34;There is no connections&#34;)
 
     @staticmethod
     def _print_hosts(hosts, hosts_message, no_hosts_message):
@@ -166,7 +162,7 @@ class ClarityChallengeFacade(object):
 <span>def <span class="ident">get_host_connected_to_in_period</span></span>(<span>self, init_datetime: int, end_datetime: int, host_to: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>get a list of hostnames connected to the given host during the given period
+<div class="desc"><p>Get a list of hostnames connected to the given host during the given period
 :param init_datetime start time of the period
 :param end_datetime end time of the period
 :param host_to given host</p></div>
@@ -176,11 +172,12 @@ class ClarityChallengeFacade(object):
 </summary>
 <pre><code class="python">def get_host_connected_to_in_period(self, init_datetime: int, end_datetime: int, host_to: str):
     &#34;&#34;&#34;
-    get a list of hostnames connected to the given host during the given period
+    Get a list of hostnames connected to the given host during the given period
     :param init_datetime start time of the period
     :param end_datetime end time of the period
     :param host_to given host
     &#34;&#34;&#34;
+    hosts = []
     hosts = self._log_file.get_host_connected_to_in_period(int(init_datetime), int(end_datetime), host_to)
     self._print_hosts(hosts, f&#34;HOSTS CONNECTED to {host_to} in period {init_datetime} - {end_datetime}&#34;,
                       f&#34;There is no hosts connected to {host_to} in period {init_datetime} - {end_datetime}&#34;)</code></pre>
@@ -190,7 +187,7 @@ class ClarityChallengeFacade(object):
 <span>def <span class="ident">get_hosts_connected_from</span></span>(<span>self, host_from: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>run 'process' for getting a list of hosts connected from a given host
+<div class="desc"><p>Run 'process' for getting a list of hosts connected from a given host
 :param host_from given host</p></div>
 <details class="source">
 <summary>
@@ -198,18 +195,18 @@ class ClarityChallengeFacade(object):
 </summary>
 <pre><code class="python">def get_hosts_connected_from(self, host_from: str):
     &#34;&#34;&#34;
-    run &#39;process&#39; for getting a list of hosts connected from a given host
+    Run &#39;process&#39; for getting a list of hosts connected from a given host
     :param host_from given host
     &#34;&#34;&#34;
     hosts = self._log_file.get_hosts_connected_from(host_from)
-    self._print_hosts(hosts, f&#34;HOSTS CONNECTED from {host_from}&#34;,  f&#34;There is no hosts connected to {host_from}&#34;)</code></pre>
+    self._print_hosts(hosts, f&#34;HOSTS CONNECTED from {host_from}&#34;,  f&#34;There is no hosts connected from {host_from}&#34;)</code></pre>
 </details>
 </dd>
 <dt id="clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.get_hosts_connected_to"><code class="name flex">
 <span>def <span class="ident">get_hosts_connected_to</span></span>(<span>self, host_to: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>run 'process' for getting a list of hosts connected to a given host
+<div class="desc"><p>Run 'process' for getting a list of hosts connected to a given host
 :param host_to given host</p></div>
 <details class="source">
 <summary>
@@ -217,7 +214,7 @@ class ClarityChallengeFacade(object):
 </summary>
 <pre><code class="python">def get_hosts_connected_to(self, host_to: str):
     &#34;&#34;&#34;
-    run &#39;process&#39; for getting a list of hosts connected to a given host
+    Run &#39;process&#39; for getting a list of hosts connected to a given host
     :param host_to given host
     &#34;&#34;&#34;
     hosts = self._log_file.get_hosts_connected_to(host_to)
@@ -228,33 +225,17 @@ class ClarityChallengeFacade(object):
 <span>def <span class="ident">get_most_connections_host</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>run 'process' for host which generated most connections</p></div>
+<div class="desc"><p>Run 'process' for host which generated most connections</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_most_connections_host(self):
     &#34;&#34;&#34;
-    run &#39;process&#39; for host which generated most connections
+    Run &#39;process&#39; for host which generated most connections
     &#34;&#34;&#34;
     hosts = self._log_file.get_most_connections_host()
-    self._print_hosts(hosts, f&#34;HOST WITH MOST CONNECTIONS{hosts}&#34;, f&#34;There is no connections&#34;)</code></pre>
-</details>
-</dd>
-<dt id="clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.parse"><code class="name flex">
-<span>def <span class="ident">parse</span></span>(<span>self, buffer_size=512)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>run parse of log file</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def parse(self, buffer_size=512):
-    &#34;&#34;&#34;
-    run parse of log file
-    &#34;&#34;&#34;
-    self._log_file.parse()</code></pre>
+    self._print_hosts(hosts, f&#34;HOST WITH MOST CONNECTIONS&#34;, f&#34;There is no connections&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -282,7 +263,6 @@ class ClarityChallengeFacade(object):
 <li><code><a title="clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.get_hosts_connected_from" href="#clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.get_hosts_connected_from">get_hosts_connected_from</a></code></li>
 <li><code><a title="clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.get_hosts_connected_to" href="#clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.get_hosts_connected_to">get_hosts_connected_to</a></code></li>
 <li><code><a title="clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.get_most_connections_host" href="#clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.get_most_connections_host">get_most_connections_host</a></code></li>
-<li><code><a title="clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.parse" href="#clarity.facade.clarity_challenge_facade.ClarityChallengeFacade.parse">parse</a></code></li>
 </ul>
 </li>
 </ul>
