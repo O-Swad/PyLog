@@ -13,8 +13,8 @@ A Python log parser that scales.
 
 ## Install
 ```commandline
-tar -xzvf clarity_challenge_v1.0.tar.gz
-cd clarity_challenge_v1.0/
+tar -xzvf pylog.tar.gz
+cd pylog
 python3 -m clarity.app.app -h
 
 ```
