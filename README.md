@@ -1,4 +1,4 @@
-# Clarity challenge
+# PyLog
 A Python log parser that scales.
 
 ## Source code documentation
